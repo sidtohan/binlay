@@ -3,8 +3,8 @@ mod elf;
 
 fn main() -> () {
     let args: Vec<String> = env::args().collect();
-    // Arg format -> filename -- user args
-    if args.len() < 2 {
+    // Arg format -> filename -- <user_args>
+    if args.len() != 2 {
         println!("Usage -> {} <ELF_FILE_PATH>", args[0]);
         return;
     }
@@ -18,5 +18,9 @@ fn main() -> () {
     }
 
     // Print length of read 
-    println!("Read {} bytes",buffer.unwrap().len());
+    let data = buffer.unwrap();
+    println!("Read {} bytes",data.len());
+
+    // Parse ELF file
+    let _ = elf::parse::parse_file(&data);
 }
