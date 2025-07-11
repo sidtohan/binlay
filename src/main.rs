@@ -1,5 +1,5 @@
 use std::env;
-mod elf;
+mod utils;
 
 fn main() -> () {
     let args: Vec<String> = env::args().collect();
@@ -10,17 +10,18 @@ fn main() -> () {
     }
 
     // Arg pass to open file
-    let buffer: Result<Vec<u8>, std::io::Error> = elf::file::read_file(&args[1]);
+    let buffer: Result<Vec<u8>, std::io::Error> = utils::file::read_file(&args[1]);
     
+    // Error handling
     if buffer.is_err() {
         println!("Error: {}", buffer.unwrap_err());
         return;
     }
-
+    
     // Print length of read 
     let data = buffer.unwrap();
-    println!("Read {} bytes",data.len());
+    println!("Read {} bytes from the file {}",data.len(), &args[1]);
 
     // Parse ELF file
-    let _ = elf::parse::parse_file(&data);
+    let _ = utils::parse::parse_file(&data);
 }
