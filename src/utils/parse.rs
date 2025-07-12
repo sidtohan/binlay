@@ -1,4 +1,5 @@
 use goblin::elf::Elf;
+use goblin::elf64::sym::STT_FUNC;
 
 // Named lifetime:: since elf file is using borrowed from buffer,
 // and it is present inside the Elf struct, we need to use the named lifetime to ensure
@@ -7,12 +8,17 @@ fn print_data<'a>(elf: &Elf<'a>) -> () {
     println!("Parsed ELF!");
     println!("Entry point: {}", elf.entry);
     println!("Program Headers:");
-    for sh in &elf.section_headers {
-        // Sh_name is the offset, need to refer to the section header string table to get the name
-        let name: Option<&'a str> = elf.shdr_strtab.get_at(sh.sh_name);
+    for sym in &elf.syms {
+        // Filter out only functions.. for now
+        if sym.st_type() != STT_FUNC {
+            continue;
+        }
+        // Symbol names are stored in symbol name table(denoted via strtab)
+        // To access, use the offset we get from elf.syms, which is the symbol table 
+        let name: Option<&'a str> = elf.strtab.get_at(sym.st_name);
         match name {
-            Some(section_name) => println!("Offset: {}, Name: {}, Size: {}", sh.sh_offset, section_name, sh.sh_size),
-            None => println!("Invalid name offset"),
+            Some(symbol_name) => println!("Name: {}, Size: {}", symbol_name, sym.st_value),
+            None => println!("Invalid Symbol!"),
         }
     }
 }
@@ -23,11 +29,10 @@ fn print_data<'a>(elf: &Elf<'a>) -> () {
 // trait.
 pub fn parse_file(data: &Vec<u8>) -> Result<(), Box<dyn std::error::Error>> {
     // Similar to match
-    if let Ok(elf) = Elf::parse(data) {
-        print_data(&elf);
-    } else {
-        println!("Not a valid ELF file!");
+    let parse_data = Elf::parse(data);
+    match parse_data {
+        Ok(elf) => print_data(&elf),
+        Err(err) => println!("{}", err),
     }
-
     Ok(())
 }
