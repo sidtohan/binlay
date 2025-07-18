@@ -5,9 +5,18 @@ use goblin::elf64::sym::STT_FUNC;
 // and it is present inside the Elf struct, we need to use the named lifetime to ensure
 // rust knows how long this data is valid
 fn print_data<'a>(elf: &Elf<'a>) -> () {
-    println!("Parsed ELF!");
-    println!("Entry point: {}", elf.entry);
-    for sym in &elf.syms {
+    // Compute total size
+    let total_size: u64 = elf.syms.iter().map(|sym| sym.st_size).sum();
+    // Sort symbols on basis of their size
+    let mut symbols: Vec<_> = elf.syms
+        .iter()
+        .filter(|sym| sym.st_size > 0)
+        .collect::<Vec<_>>();
+        
+    symbols.sort_by(|a,b| b.st_size.cmp(&a.st_size));
+    
+    println!("SYMBOL ANALYSIS");
+    for sym in symbols {
         // Filter out only functions.. for now
         if sym.st_type() != STT_FUNC {
             continue;
@@ -15,8 +24,9 @@ fn print_data<'a>(elf: &Elf<'a>) -> () {
         // Symbol names are stored in symbol name table(denoted via strtab)
         // To access, use the offset we get from elf.syms, which is the symbol table 
         let name: Option<&'a str> = elf.strtab.get_at(sym.st_name);
+        let percentage = (sym.st_size as f64 / total_size as f64) * 100.0;
         match name {
-            Some(symbol_name) => println!("Name: {}, Size: {}", symbol_name, sym.st_value),
+            Some(symbol_name) => println!("Name: {}, Size: {} ({:.2}%)", symbol_name, sym.st_size, percentage),
             None => println!("Invalid Symbol!"),
         }
     }
