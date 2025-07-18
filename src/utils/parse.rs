@@ -7,7 +7,6 @@ use goblin::elf64::sym::STT_FUNC;
 fn print_data<'a>(elf: &Elf<'a>) -> () {
     println!("Parsed ELF!");
     println!("Entry point: {}", elf.entry);
-    println!("Program Headers:");
     for sym in &elf.syms {
         // Filter out only functions.. for now
         if sym.st_type() != STT_FUNC {

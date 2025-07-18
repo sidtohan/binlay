@@ -5,4 +5,5 @@ edition = "2024"
 
 [dependencies]
 goblin = "0.10.0"
+clap = { version = "4", features = ["derive"] }
 
