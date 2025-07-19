@@ -5,6 +5,7 @@ use goblin::elf64::sym::STT_FUNC;
 fn print_table(symbols: Vec<(String,u64)>) -> () {
     // Compute total size
     // & -> destructuring to access fields
+    // first param _ -> ignore it. no need to check for anything like borrow and stuff.
     let total_size: u64 = symbols.iter().map(|&(_, size) | size).sum();
 
     // Compute table width by using the max width of name
@@ -14,7 +15,6 @@ fn print_table(symbols: Vec<(String,u64)>) -> () {
     let max_bar_len = 25;
     
     // Table width: first column should have max(8, max_name_length) width
-    println!("Max name length: {}", max_name_length);
     println!("+{:-<width$}+{:-<24}+{:-<12}+{:-<27}+", "", "", "", "", width = max_name_length + 2);
     println!("| {:<width$} | {:>6} | {:>10} | {:<25} |", "Symbol Name", "Symbol Size (in bytes)", "% of Total", "Visual Size Bar", width = max_name_length);
     println!("+{:-<width$}+{:-<24}+{:-<12}+{:-<27}+", "", "", "", "", width = max_name_length + 2);
@@ -55,10 +55,7 @@ fn print_data<'a>(elf: &Elf<'a>) -> () {
 
         match symbol_name {
             Some(name) => final_symbols.push((name.to_string(),sym.st_size)),
-            None => {
-                println!("Invalid Symbol!")
-                // TODO: throw some error here.
-            },
+            None => println!("Invalid Symbol Offset {}. Skipping...", sym.st_name),
         }
     }
     print_table(final_symbols);

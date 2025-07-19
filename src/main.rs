@@ -25,7 +25,6 @@ fn main() -> () {
     
     // Print length of read 
     let data = buffer.unwrap();
-    println!("Read {} bytes from the file {}",data.len(), &args.file);
 
     // Parse ELF file
     let _ = utils::parse::parse_file(&data);
