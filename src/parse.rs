@@ -3,7 +3,7 @@ use goblin::elf64::sym::STT_FUNC;
 use crate::print;
 
 /* This function prints the symbol information given the ELF file data */
-fn print_data<'a>(elf: &Elf<'a>) -> () {
+fn collect_data<'a>(elf: &Elf<'a>) -> Vec<(String,u64)> {
     // Named lifetime:: since elf file is using borrowed data from buffer,
     // and it is present inside the Elf struct, we need to use the named lifetime to ensure
     // rust knows how long this data is valid
@@ -33,7 +33,8 @@ fn print_data<'a>(elf: &Elf<'a>) -> () {
             None => println!("Invalid Symbol Offset {}. Skipping...", sym.st_name),
         }
     }
-    print::print_table(final_symbols);
+
+    return final_symbols;
 }
 
 /* Parses the given binary by using goblin. Only supports ELF format for the time being */
@@ -43,8 +44,9 @@ fn print_data<'a>(elf: &Elf<'a>) -> () {
 pub fn parse_file(data: &Vec<u8>) -> Result<(), Box<dyn std::error::Error>> {
     // Similar to match
     let parse_data = Elf::parse(data);
+
     match parse_data {
-        Ok(elf) => print_data(&elf),
+        Ok(elf) => print::print_table(collect_data(&elf)),
         Err(err) => println!("{}", err),
     }
     Ok(())
