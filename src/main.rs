@@ -1,5 +1,8 @@
+mod file;
+mod parse;
+mod print;
+
 use clap::Parser;
-mod utils;
 
 // Command line argument parsing
 #[derive(Parser, Debug)]
@@ -15,7 +18,7 @@ fn main() -> () {
     let args = Args::parse();
     
     // Arg pass to open file
-    let buffer: Result<Vec<u8>, std::io::Error> = utils::file::read_file(&args.file);
+    let buffer: Result<Vec<u8>, std::io::Error> = file::read_file(&args.file);
     
     // Error handling
     if buffer.is_err() {
@@ -27,5 +30,5 @@ fn main() -> () {
     let data = buffer.unwrap();
 
     // Parse ELF file
-    let _ = utils::parse::parse_file(&data);
+    let _ = parse::parse_file(&data);
 }
