@@ -1,4 +1,5 @@
 use clap::Parser;
+use once_cell::sync::Lazy;
 
 // Command line argument parsing
 #[derive(Parser, Debug)]
@@ -11,11 +12,9 @@ pub struct Args {
     #[arg(short,long)]
     pub sort_ascending: bool,
     #[arg(short,long,default_value="1")]
-    pub min_size: u32,
+    pub min_size: u64,
 }
 
-pub fn get_args() -> Args {
-    let args = Args::parse();
-    return args;
-}
-
+// Using lazy is needed if we want static, since function call is static is now allowed globally
+// This also means this is initialized when first accessed
+pub static CL_ARGS: Lazy<Args> = Lazy::new(|| Args::parse());

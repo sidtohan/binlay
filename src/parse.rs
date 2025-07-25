@@ -1,6 +1,7 @@
 use goblin::elf::Elf;
 use goblin::elf64::sym::STT_FUNC;
 use crate::print;
+use crate::arg_parse::CL_ARGS;
 
 /* This function prints the symbol information given the ELF file data */
 fn collect_data<'a>(elf: &Elf<'a>) -> Vec<(String,u64)> {
@@ -13,7 +14,7 @@ fn collect_data<'a>(elf: &Elf<'a>) -> Vec<(String,u64)> {
         .filter(|sym| sym.st_size > 0)
         .collect::<Vec<_>>();
         
-    symbols.sort_by(|a,b| b.st_size.cmp(&a.st_size));
+    symbols.sort_by(|a,b|  b.st_size.cmp(&a.st_size));
     
     // First collect data in form of <name,size> pairs, makes easier to perform some computation
     let mut final_symbols: Vec<(String,u64)> = Vec::new();
@@ -21,6 +22,11 @@ fn collect_data<'a>(elf: &Elf<'a>) -> Vec<(String,u64)> {
     for sym in symbols {
         // Filter out only functions.. for now
         if sym.st_type() != STT_FUNC { 
+            continue;
+        }
+
+        // Use Command Line args to filter as per requirement
+        if sym.st_size < CL_ARGS.min_size {
             continue;
         }
         

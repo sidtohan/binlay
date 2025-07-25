@@ -4,10 +4,7 @@ mod print;
 mod arg_parse;
 
 fn main() -> () {
-    // Get args
-    let args = arg_parse::get_args();
-
-    let buffer: Result<Vec<u8>, std::io::Error> = file::read_file(&args.file);
+    let buffer: Result<Vec<u8>, std::io::Error> = file::read_file(&arg_parse::CL_ARGS.file);
     
     // Error handling
     if buffer.is_err() {
