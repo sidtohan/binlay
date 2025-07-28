@@ -40,10 +40,11 @@ cargo build --release
 # Or analyze an object file
 ./target/release/binlay ./foo.o
 ```
-### Optional CLI flags (WIP)
+### Optional CLI flags 
 - --sort: Sort by size
 - --min-size: Filter out tiny symbols
 - --top N: Show top-N symbols only
+- --sort-ascending: Sort the symbols in ascending order of size
 
 ## 📜 License
 
