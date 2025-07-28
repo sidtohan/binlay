@@ -13,8 +13,13 @@ fn collect_data<'a>(elf: &Elf<'a>) -> Vec<(String,u64)> {
         .iter()
         .filter(|sym| sym.st_size > 0)
         .collect::<Vec<_>>();
-        
-    symbols.sort_by(|a,b|  b.st_size.cmp(&a.st_size));
+    
+    if !CL_ARGS.sort_ascending {
+        symbols.sort_by(|a,b|  b.st_size.cmp(&a.st_size));
+    } else {
+        symbols.sort_by(|a,b|  a.st_size.cmp(&b.st_size));
+    }
+
     
     // First collect data in form of <name,size> pairs, makes easier to perform some computation
     let mut final_symbols: Vec<(String,u64)> = Vec::new();
